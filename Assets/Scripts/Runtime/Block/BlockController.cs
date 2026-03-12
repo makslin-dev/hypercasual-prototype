@@ -13,11 +13,15 @@ public class BlockController : MonoBehaviour
     {
         MoveBlock();
     }
+    private void OnDisable()
+    {
+        _moveTween?.Kill();
+    }
     private void MoveBlock()
     {
         _moveTween = _rigidBody.DOMoveX(_distance, _duration).SetLoops(-1, LoopType.Yoyo).SetEase(Ease.Linear);
     }
-    private void OnDisable()
+    public void StopMoving()
     {
         _moveTween?.Kill();
     }
