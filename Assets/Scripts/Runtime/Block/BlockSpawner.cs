@@ -7,10 +7,11 @@ public class BlockSpawner : MonoBehaviour
     private float _currentY = 0.5f;
     private float _Yoffset = 1f;
 
-    public void SpawnBlock()
+    public BlockController SpawnBlock()
     {
         _currentY += _Yoffset;
         var newPos =  new Vector3(0, _currentY, 4);
-        GameObject.Instantiate(_block,newPos, Quaternion.identity);
+        var block = Instantiate(_block,newPos, Quaternion.identity);
+        return block;
     }
 }
