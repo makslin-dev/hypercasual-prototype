@@ -1,0 +1,35 @@
+{
+    "version": 1,
+    "name": "GameController",
+    "maps": [
+        {
+            "name": "Player",
+            "id": "30475d58-c2d7-41b3-8824-f7786ab3d4dc",
+            "actions": [
+                {
+                    "name": "PlaceBlock",
+                    "type": "Button",
+                    "id": "7ab57c03-9f43-48a0-8766-a33de4f4df73",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "362e4a53-0652-4578-8f27-3b9e5b672be9",
+                    "path": "<Pointer>/press",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PlaceBlock",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}
