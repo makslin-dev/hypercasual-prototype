@@ -4,7 +4,6 @@ using UnityEngine.Rendering;
 
 public class BlockController : MonoBehaviour
 {
-    [SerializeField] private Rigidbody _rigidBody;
     [SerializeField] private float _distance = 3f;
     [SerializeField] private float _duration = 1f;
 
@@ -20,7 +19,7 @@ public class BlockController : MonoBehaviour
     }
     private void MoveBlock()
     {
-        _moveTween = _rigidBody.DOMoveX(_distance, _duration).From(-_distance).SetLoops(-1, LoopType.Yoyo).SetEase(Ease.Linear);
+        _moveTween = transform.DOMoveX(_distance, _duration).From(-_distance).SetLoops(-1, LoopType.Yoyo).SetEase(Ease.Linear);
     }
     public void StopMoving()
     {
@@ -34,6 +33,19 @@ public class BlockController : MonoBehaviour
     }
     public bool CutBlock(BlockController previousBlock)
     {
+        float offset = transform.position.x - previousBlock.transform.position.x;
+
+        float tolerance = 0.3f;
+
+        if (Mathf.Abs(offset) < tolerance)
+        {
+            transform.position = new Vector3(
+                previousBlock.transform.position.x,
+                transform.position.y,
+                transform.position.z);
+            print("perfect");
+            return true;
+        }
         float prevLeft = previousBlock.transform.position.x - previousBlock.transform.localScale.x / 2f;
         float prevRight = previousBlock.transform.position.x + previousBlock.transform.localScale.x / 2f;
 
