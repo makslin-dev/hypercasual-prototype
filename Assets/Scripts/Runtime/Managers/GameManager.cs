@@ -1,3 +1,4 @@
+using System;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
@@ -8,6 +9,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private BlockController _startBlock;
     private BlockController _currentBlock;
     private BlockController _lastBlock;
+
+    public Action OnNextBlockStart;
     private void Awake()
     {
         StartGame();
@@ -30,5 +33,6 @@ public class GameManager : MonoBehaviour
         }
         var lastBlockLocalScale = _lastBlock.transform.localScale.x;
         _currentBlock = _blockSpawner.SpawnBlock(lastBlockLocalScale);
+        OnNextBlockStart?.Invoke();
     }
 }
