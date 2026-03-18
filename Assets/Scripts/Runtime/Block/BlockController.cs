@@ -1,4 +1,4 @@
-using DG.Tweening;
+﻿using DG.Tweening;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -6,89 +6,130 @@ public class BlockController : MonoBehaviour
 {
     [SerializeField] private float _distance = 3f;
     [SerializeField] private float _duration = 1f;
+    [SerializeField] private Renderer _renderer;
 
     private Tween _moveTween;
 
-    private void Start()
-    {
-        MoveBlock();
-    }
     private void OnDisable()
     {
         _moveTween?.Kill();
     }
-    private void MoveBlock()
+    public void MoveBlockX()
     {
-        _moveTween = transform.DOMoveX(_distance, _duration).From(-_distance).SetLoops(-1, LoopType.Yoyo).SetEase(Ease.Linear);
+        _moveTween = transform.DOMoveX(_distance, _duration).From(-_distance)
+            .SetLoops(-1, LoopType.Yoyo).SetEase(Ease.Linear);
+    }
+    public void MoveBlockZ()
+    {
+        _moveTween = transform.DOMoveZ(-_distance,_duration).From(_distance)
+            .SetLoops(-1, LoopType.Yoyo).SetEase(Ease.Linear);
+    }
+    public void SetColor(Color color)
+    {
+        _renderer.material.color = color;
     }
     public void StopMoving()
     {
         _moveTween?.Kill();
     }
-    public void SetScaleX(float scaleX)
+    public void SetScale(float scaleX, float scaleZ)
     {
         var newScale = transform.localScale;
         newScale.x = scaleX;
+        newScale.z = scaleZ;
         transform.localScale = newScale;
     }
-    public bool CutBlock(BlockController previousBlock)
+    public bool CutBlock(BlockController previousBlock, MoveAxis moveAxis)
     {
-        float offset = transform.position.x - previousBlock.transform.position.x;
-
         float tolerance = 0.3f;
+        bool isX = moveAxis == MoveAxis.X;
 
+
+        float myPos = isX ? transform.position.x : transform.position.z;
+        float mySize = isX ? transform.localScale.x : transform.localScale.z;
+
+        float prevPos = isX ? previousBlock.transform.position.x : previousBlock.transform.position.z;
+        float prevSize = isX ? previousBlock.transform.localScale.x : previousBlock.transform.localScale.z;
+
+        float offset = myPos - prevPos;
         if (Mathf.Abs(offset) < tolerance)
         {
-            transform.position = new Vector3(
-                previousBlock.transform.position.x,
-                transform.position.y,
-                transform.position.z);
+            Vector3 perfectPos = transform.position;
+            if (isX) perfectPos.x = prevPos;
+            else perfectPos.z = prevPos;
+
+            transform.position = perfectPos;
             print("perfect");
             return true;
         }
-        float prevLeft = previousBlock.transform.position.x - previousBlock.transform.localScale.x / 2f;
-        float prevRight = previousBlock.transform.position.x + previousBlock.transform.localScale.x / 2f;
+        float prevMin = prevPos - prevSize / 2f;
+        float prevMax = prevPos + prevSize / 2f;
+        float myMin = myPos - mySize / 2f;
+        float myMax = myPos + mySize / 2f;
 
-        float myLeft = transform.position.x - transform.localScale.x / 2f;
-        float myRight = transform.position.x + transform.localScale.x / 2f;
-
-        float overlapLeft = Mathf.Max(prevLeft, myLeft);
-        float overlapRight = Mathf.Min(prevRight, myRight);
-
-        if (overlapRight <= overlapLeft)
+        float overlapMin = Mathf.Max(prevMin, myMin);
+        float overlapMax = Mathf.Min(prevMax, myMax);
+        if (overlapMax <= overlapMin)
         {
             Debug.LogWarning("you lost");
             return false;
         }
-        float newSizeX = overlapRight - overlapLeft;
-        float newCentreX = overlapLeft + (newSizeX / 2);
-        if (myLeft < overlapLeft) //need to spawn on the left 
+        float newSize = overlapMax - overlapMin;
+        float newCenter = overlapMin + (newSize / 2f);
+        if (myMin < overlapMin) 
         {
-            float pieceSize = overlapLeft - myLeft;
-            float pieceCenterX = (overlapLeft - (pieceSize / 2));
-            SpawnFallingPiece(pieceCenterX,pieceSize);
+            float pieceSize = overlapMin - myMin;
+            float pieceCenter = overlapMin - (pieceSize / 2f);
+            SpawnPieceHelper(pieceCenter, pieceSize, isX);
         }
-        if (myRight > overlapRight) //need to spawn on the right
+        if (myMax > overlapMax) 
         {
-            float pieceSize = myRight - overlapRight;
-            float pieceCentre = overlapRight + (pieceSize / 2);
-            SpawnFallingPiece(pieceCentre, pieceSize);
+            float pieceSize = myMax - overlapMax;
+            float pieceCenter = overlapMax + (pieceSize / 2f);
+            SpawnPieceHelper(pieceCenter, pieceSize, isX);
         }
-        var newScale = transform.localScale;
-        newScale.x = newSizeX;
-        transform.localScale = newScale;
+        Vector3 newScaleVec = transform.localScale;
+        Vector3 newPosVec = transform.position;
 
-        var newPosX = newCentreX;
-        transform.position = new Vector3(newPosX, transform.position.y,transform.position.z);
+        if (isX)
+        {
+            newScaleVec.x = newSize;
+            newPosVec.x = newCenter;
+        }
+        else
+        {
+            newScaleVec.z = newSize;
+            newPosVec.z = newCenter;
+        }
+
+        transform.localScale = newScaleVec;
+        transform.position = newPosVec;
 
         return true;
     }
+    private void SpawnPieceHelper(float center, float size, bool isX)
+    {
+        Vector3 piecePos = transform.position;
+        Vector3 pieceScale = transform.localScale;
 
-    private void SpawnFallingPiece(float posX, float sizeX)
+        if (isX)
+        {
+            piecePos.x = center;
+            pieceScale.x = size;
+        }
+        else
+        {
+            piecePos.z = center;
+            pieceScale.z = size;
+        }
+
+        SpawnFallingPiece(piecePos, pieceScale);
+    }
+    private void SpawnFallingPiece(Vector3 pos, Vector3 scale)
     {
         GameObject fallingPiece = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        fallingPiece.transform.position = new Vector3(posX, transform.position.y, transform.position.z);
-        fallingPiece.transform.localScale = new Vector3(sizeX, transform.localScale.y, transform.localScale.z);
+        fallingPiece.transform.position = pos;
+        fallingPiece.transform.localScale = scale;
         fallingPiece.AddComponent<Rigidbody>();
 
         if (TryGetComponent<Renderer>(out var myRenderer))
