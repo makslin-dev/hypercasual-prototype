@@ -1,28 +1,16 @@
 using System;
 using UnityEngine;
+using Zenject;
 
-public class VibrationManager : MonoBehaviour
+public class VibrationManager : IInitializable, IDisposable
 {
-    public static VibrationManager Instance;
-
     private bool _canVibrate = true;
     public event Action<bool> OnVibrationSet;
-    private void Awake()
-    {
-       Instance = this;
-    }
-    private void OnEnable()
+    public void Initialize()
     {
         SubscribeToEvents();
-    }
-    private void Start()
-    {
         SetVibration();
     }
-    private void OnDisable()
-    {
-        UnsubscribeFromEvents();
-    } 
     private void SubscribeToEvents()
     {
         GameManager.Instance.OnNextBlockStart += VibratePhone;
@@ -42,7 +30,6 @@ public class VibrationManager : MonoBehaviour
             canVibrate = false;
         }
         _canVibrate = canVibrate;
-        print("Can vibrate" + _canVibrate);
         OnVibrationSet?.Invoke(canVibrate);
     }
     private void ToggleVibration()
@@ -65,4 +52,10 @@ public class VibrationManager : MonoBehaviour
             Handheld.Vibrate();
         }
     }
+
+    public void Dispose()
+    {
+        UnsubscribeFromEvents();
+    }
+
 }

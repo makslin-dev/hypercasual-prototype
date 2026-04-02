@@ -1,27 +1,35 @@
+using System;
 using UnityEngine;
-using static UnityEngine.InputSystem.InputSettings;
+using Zenject;
 
-public class ViewManager : MonoBehaviour
+public class ViewManager : IInitializable, IDisposable
 {
-    public static ViewManager Instance { get; private set; }
-    [SerializeField] private Canvas[] _views;
-
     private bool _isVibrationEnabled = true;
-    private void OnEnable()
+
+    private Canvas[] _views;
+    [Inject]
+    private void Construct(Canvas[] views)
     {
-        GameManager.Instance.OnNextBlockStart += AddScore;
+        _views = views;
+    }
+
+    public void Initialize()
+    {
+        SubscribeToEvents();
+        InitViews();
+    }
+    private void SubscribeToEvents()
+    {
         EventBus.OnSettingsPressed += ShowSettings;
         EventBus.OnBackPressed += ShowMenuView;
     }
-    private void Awake()
+    private void InitViews()
     {
-        Instance = this;
         SwitchView(0);
         SetStartingSettings();
     }
-    private void OnDisable()
+    private void UnsubscribeFromEvents()
     {
-        GameManager.Instance.OnNextBlockStart -= AddScore;
         EventBus.OnSettingsPressed -= ShowSettings;
         EventBus.OnBackPressed -= ShowMenuView;
     }
@@ -47,12 +55,12 @@ public class ViewManager : MonoBehaviour
     {
         SwitchView(2);
     }
-    private void AddScore()
-    {
-
-    }
     private void ShowMenuView()
     {
         SwitchView(0);
+    }
+    public void Dispose()
+    {
+        UnsubscribeFromEvents();
     }
 }

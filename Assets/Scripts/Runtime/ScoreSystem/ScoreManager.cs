@@ -1,27 +1,42 @@
-using Cysharp.Threading.Tasks.Triggers;
 using System;
-using UnityEngine;
+using Zenject;
 
-public class ScoreManager : MonoBehaviour
-{
-    public static ScoreManager Instance { get; private set; }
-    [SerializeField] private GameManager _gameManager;
+public class ScoreManager : IInitializable, IDisposable
+{ 
     public int Score { get; private set; } = -1;
-
     public Action<int> OnScoreIncreased;
-    private void Awake()
+    private GameManager _gameManager;
+    private PlayerPrefsManager _playerPrefsManager;
+    [Inject]
+    private void Construct(GameManager gameManager,PlayerPrefsManager prefsManager)
     {
-        Instance = this;
+        _gameManager = gameManager;
+        _playerPrefsManager = prefsManager;
+    }
+    public void Initialize()
+    {
+        SubscribeToEvents();
+    }
+    private void SubscribeToEvents()
+    {
         _gameManager.OnNextBlockStart += IncreaseScore;
+    }
+    private void UnsubscribeFromEvents()
+    {
+        _gameManager.OnNextBlockStart -= IncreaseScore;
     }
     private void IncreaseScore()
     {
         Score++;
         OnScoreIncreased.Invoke(Score);
 
-        if (Score > PlayerPrefsManager.Instance.LoadBestScore())
+        if (Score > _playerPrefsManager.LoadBestScore())
         {
-            PlayerPrefsManager.Instance.SaveBestScore(Score);
+            _playerPrefsManager.SaveBestScore(Score);
         }
+    }
+    public void Dispose()
+    {
+        UnsubscribeFromEvents();
     }
 }
