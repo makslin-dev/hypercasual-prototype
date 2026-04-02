@@ -13,10 +13,6 @@ public class BlockSpawner : MonoBehaviour
     {
         GameManager.Instance.OnNextBlockStart += ChangeAxis;
     }
-    private void Update()
-    {
-        print(CurrentAxis);
-    }
     public BlockController SpawnBlock(BlockController lastBlock, float scaleX, float scaleZ, MoveAxis axis)
     {
         Vector3 newPos = Vector3.zero;

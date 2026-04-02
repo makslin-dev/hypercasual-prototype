@@ -1,7 +1,7 @@
 using System;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 
+[DefaultExecutionOrder(-1)]
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
@@ -11,12 +11,20 @@ public class GameManager : MonoBehaviour
     [SerializeField] private BlockController _startBlock;
     private BlockController _currentBlock;
     private BlockController _lastBlock;
-
+    private bool _gameStarted;
+    
     public Action OnNextBlockStart;
     private void Awake()
     {
         Instance = this;
-        StartGame();
+        _gameInput.OnBlockPlaced += SetStartedTrue;    
+    }
+    private void Update()
+    {
+        if (_gameStarted)
+        {
+            StartGame();
+        }
     }
     private void StartGame()
     {
@@ -24,6 +32,12 @@ public class GameManager : MonoBehaviour
         _lastBlock = _startBlock;
         _gameInput.OnBlockPlaced += StartNextBlock;
         StartNextBlock();
+        _gameInput.OnBlockPlaced -= SetStartedTrue;
+        _gameStarted = false;
+    }
+    private void SetStartedTrue()
+    {
+        _gameStarted = true;
     }
     private void StartNextBlock()
     {
