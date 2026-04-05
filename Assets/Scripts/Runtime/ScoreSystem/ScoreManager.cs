@@ -5,12 +5,10 @@ public class ScoreManager : IInitializable, IDisposable
 { 
     public int Score { get; private set; } = -1;
     public Action<int> OnScoreIncreased;
-    private GameManager _gameManager;
     private PlayerPrefsManager _playerPrefsManager;
     [Inject]
-    private void Construct(GameManager gameManager,PlayerPrefsManager prefsManager)
+    private void Construct(PlayerPrefsManager prefsManager)
     {
-        _gameManager = gameManager;
         _playerPrefsManager = prefsManager;
     }
     public void Initialize()
@@ -19,11 +17,11 @@ public class ScoreManager : IInitializable, IDisposable
     }
     private void SubscribeToEvents()
     {
-        _gameManager.OnNextBlockStart += IncreaseScore;
+        EventBus.OnNextBlockStart += IncreaseScore;
     }
     private void UnsubscribeFromEvents()
     {
-        _gameManager.OnNextBlockStart -= IncreaseScore;
+        EventBus.OnNextBlockStart -= IncreaseScore;
     }
     private void IncreaseScore()
     {

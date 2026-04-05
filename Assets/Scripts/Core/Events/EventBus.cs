@@ -1,4 +1,5 @@
 using System;
+using UnityEditor.PackageManager;
 using UnityEngine;
 
 public static class EventBus
@@ -6,7 +7,9 @@ public static class EventBus
     public static event Action OnVibratePressed;
     public static event Action OnSoundPressed;
     public static event Action OnSettingsPressed;
-    public static event Action OnBackPressed;
+    public static event Action OnTutorialPressed;
+    public static event Action<BackCaller> OnBackPressed;
+    public static event Action OnNextBlockStart;
     public static void VibratePress()
     {
         OnVibratePressed?.Invoke();
@@ -19,8 +22,16 @@ public static class EventBus
     {
         OnSettingsPressed?.Invoke();
     }
-    public static void BackPress()
+    public static void TutorialPressed()
     {
-        OnBackPressed?.Invoke();
+        OnTutorialPressed?.Invoke();
+    }
+    public static void BackPress(BackCaller caller)
+    {
+        OnBackPressed?.Invoke(caller);
+    }
+    public static void StartNextBlock()
+    {
+        OnNextBlockStart?.Invoke();
     }
 }

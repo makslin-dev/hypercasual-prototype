@@ -55,9 +55,12 @@ public class ViewManager : IInitializable, IDisposable
     {
         SwitchView(2);
     }
-    private void ShowMenuView()
+    private void ShowMenuView(BackCaller caller)
     {
-        SwitchView(0);
+        if (caller == BackCaller.Settings)
+        {
+            SwitchView(0);
+        }
     }
     public void Dispose()
     {

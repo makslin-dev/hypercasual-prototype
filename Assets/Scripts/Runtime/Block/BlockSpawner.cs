@@ -11,7 +11,7 @@ public class BlockSpawner : MonoBehaviour
     public MoveAxis CurrentAxis { get; private set; } = MoveAxis.X;
     private void Awake()
     {
-        GameManager.Instance.OnNextBlockStart += ChangeAxis;
+        EventBus.OnNextBlockStart += ChangeAxis;
     }
     public BlockController SpawnBlock(BlockController lastBlock, float scaleX, float scaleZ, MoveAxis axis)
     {
