@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using Zenject;
 
 public class SettingsViewUI : MonoBehaviour
 {
@@ -12,6 +13,12 @@ public class SettingsViewUI : MonoBehaviour
     [SerializeField] private Image _soundOffFrame;
 
     private bool _tutorialOpened;
+    private VibrationManager _vibrationManager;
+    [Inject]
+    private void Construct(VibrationManager vibration)
+    {
+        _vibrationManager = vibration;
+    }
     private void OnEnable()
     {
         BindButtons();
@@ -39,12 +46,12 @@ public class SettingsViewUI : MonoBehaviour
     }
     private void SubscribeToEvents()
     {
-        VibrationManager.Instance.OnVibrationSet += InitVibrateButton;
+        _vibrationManager.OnVibrationSet += InitVibrateButton;
         AudioManager.Instance.OnSoundSet += InitSoundButton;
     }
     private void UnsubscribeFromEvents()
     {
-        VibrationManager.Instance.OnVibrationSet -= InitVibrateButton;
+        _vibrationManager.OnVibrationSet -= InitVibrateButton;
         AudioManager.Instance.OnSoundSet -= InitSoundButton;
     }
     private void VibratePress()

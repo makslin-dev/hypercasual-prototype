@@ -29,9 +29,8 @@ public class GameManager : MonoBehaviour
     private void StartGame()
     {
         _startBlock.StopMoving();
-        _lastBlock = _startBlock;
-        _gameInput.OnBlockPlaced += StartNextBlock;
-        StartNextBlock();
+        SpawnFirstBlock();
+        _gameInput.OnBlockPlaced += SpawnNextBlock;
         _gameInput.OnBlockPlaced -= SetStartedTrue;
         _gameStarted = false;
     }
@@ -39,7 +38,13 @@ public class GameManager : MonoBehaviour
     {
         _gameStarted = true;
     }
-    private void StartNextBlock()
+    private void SpawnFirstBlock()
+    {
+        _lastBlock = _startBlock;
+        _currentBlock = _blockSpawner.SpawnBlock(_lastBlock, _startBlock.transform.localScale.x,
+            _startBlock.transform.localScale.z, _blockSpawner.CurrentAxis);
+    }
+    private void SpawnNextBlock()
     {
         if (_currentBlock != null)
         {
