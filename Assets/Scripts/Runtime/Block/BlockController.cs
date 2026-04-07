@@ -14,15 +14,23 @@ public class BlockController : MonoBehaviour
     {
         _moveTween?.Kill();
     }
-    public void MoveBlockX()
+    public void MoveBlockX(float targetX)
     {
-        _moveTween = transform.DOMoveX(_distance, _duration).From(-_distance)
-            .SetLoops(-1, LoopType.Yoyo).SetEase(Ease.Linear);
+        _moveTween?.Kill();
+        _moveTween = transform.DOMoveX(targetX, _duration)
+            .SetLoops(-1, LoopType.Yoyo)
+            .SetEase(Ease.Linear);
     }
-    public void MoveBlockZ()
+    public void MoveBlockZ(float targetZ)
     {
-        _moveTween = transform.DOMoveZ(-_distance,_duration).From(_distance)
-            .SetLoops(-1, LoopType.Yoyo).SetEase(Ease.Linear);
+        _moveTween?.Kill();
+        _moveTween = transform.DOMoveZ(targetZ, _duration)
+            .SetLoops(-1, LoopType.Yoyo)
+            .SetEase(Ease.Linear);
+    }
+    public void ConfigureMovement(float duration)
+    {
+        _duration = duration;
     }
     public void SetColor(Color color)
     {

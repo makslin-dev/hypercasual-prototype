@@ -7,6 +7,7 @@ public class ViewManager : IInitializable, IDisposable
     private bool _isVibrationEnabled = true;
 
     private Canvas[] _views;
+
     [Inject]
     private void Construct(Canvas[] views)
     {
@@ -20,6 +21,7 @@ public class ViewManager : IInitializable, IDisposable
     }
     private void SubscribeToEvents()
     {
+        EventBus.OnGameStarted += ShowGameView;
         EventBus.OnSettingsPressed += ShowSettings;
         EventBus.OnBackPressed += ShowMenuView;
     }
@@ -30,6 +32,7 @@ public class ViewManager : IInitializable, IDisposable
     }
     private void UnsubscribeFromEvents()
     {
+        EventBus.OnGameStarted += ShowGameView;
         EventBus.OnSettingsPressed -= ShowSettings;
         EventBus.OnBackPressed -= ShowMenuView;
     }
@@ -50,6 +53,10 @@ public class ViewManager : IInitializable, IDisposable
             isVibrate = true;
         }
         _isVibrationEnabled = isVibrate;
+    }
+    private void ShowGameView()
+    {
+        SwitchView(1);
     }
     private void ShowSettings()
     {

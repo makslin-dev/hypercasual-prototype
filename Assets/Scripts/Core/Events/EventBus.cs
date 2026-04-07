@@ -10,6 +10,7 @@ public static class EventBus
     public static event Action OnTutorialPressed;
     public static event Action<BackCaller> OnBackPressed;
     public static event Action OnNextBlockStart;
+    public static event Action OnGameStarted;
     public static void VibratePress()
     {
         OnVibratePressed?.Invoke();
@@ -33,5 +34,9 @@ public static class EventBus
     public static void StartNextBlock()
     {
         OnNextBlockStart?.Invoke();
+    }
+    public static void StartGame()
+    {
+        OnGameStarted?.Invoke();
     }
 }
