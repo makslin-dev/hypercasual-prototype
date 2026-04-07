@@ -14,15 +14,17 @@ public class SettingsViewUI : MonoBehaviour
 
     private bool _tutorialOpened;
     private VibrationManager _vibrationManager;
+    private AudioManager _audioManager;
     [Inject]
-    private void Construct(VibrationManager vibration)
+    private void Construct(AudioManager audioManager, VibrationManager vibration)
     {
+        _audioManager = audioManager;
         _vibrationManager = vibration;
     }
     private void OnEnable()
     {
         BindButtons();
-        SubscribeToEvents();     
+        SubscribeToEvents();
     }
     private void OnDisable()
     {
@@ -47,12 +49,12 @@ public class SettingsViewUI : MonoBehaviour
     private void SubscribeToEvents()
     {
         _vibrationManager.OnVibrationSet += InitVibrateButton;
-        AudioManager.Instance.OnSoundSet += InitSoundButton;
+        _audioManager.OnSoundSet += InitSoundButton;
     }
     private void UnsubscribeFromEvents()
     {
         _vibrationManager.OnVibrationSet -= InitVibrateButton;
-        AudioManager.Instance.OnSoundSet -= InitSoundButton;
+        _audioManager.OnSoundSet -= InitSoundButton;
     }
     private void VibratePress()
     {
@@ -66,6 +68,7 @@ public class SettingsViewUI : MonoBehaviour
     private void SoundPress()
     {
         EventBus.SoundPressed();
+        print("pressed");
         _soundOffFrame.enabled = !_soundOffFrame.enabled;
     }
     private void InitSoundButton(bool arg)
@@ -76,6 +79,7 @@ public class SettingsViewUI : MonoBehaviour
     {
         _tutorialImage.enabled = true;
         _tutorialOpened = true;
+        EventBus.TutorialPressed();
     }
     private void BackPress()
     {
@@ -83,10 +87,11 @@ public class SettingsViewUI : MonoBehaviour
         {
             _tutorialImage.enabled = false;
             _tutorialOpened = false;
+            EventBus.BackPress(BackCaller.Tutorial);
         }
         else
         {
-            EventBus.BackPress();
+            EventBus.BackPress(BackCaller.Settings);
         }
     }
 }

@@ -13,12 +13,12 @@ public class VibrationManager : IInitializable, IDisposable
     }
     private void SubscribeToEvents()
     {
-        GameManager.Instance.OnNextBlockStart += VibratePhone;
+        EventBus.OnNextBlockStart += VibratePhone;
         EventBus.OnVibratePressed += ToggleVibration;
     }
     private void UnsubscribeFromEvents()
     {
-        GameManager.Instance.OnNextBlockStart -= VibratePhone;
+        EventBus.OnNextBlockStart -= VibratePhone;
         EventBus.OnVibratePressed -= ToggleVibration;
     }
     private void SetVibration()

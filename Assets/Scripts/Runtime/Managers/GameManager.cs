@@ -4,8 +4,6 @@ using UnityEngine;
 [DefaultExecutionOrder(-1)]
 public class GameManager : MonoBehaviour
 {
-    public static GameManager Instance { get; private set; }
-
     [SerializeField] private BlockSpawner _blockSpawner;
     [SerializeField] private GameInputHandler _gameInput;
     [SerializeField] private BlockController _startBlock;
@@ -13,10 +11,9 @@ public class GameManager : MonoBehaviour
     private BlockController _lastBlock;
     private bool _gameStarted;
     
-    public Action OnNextBlockStart;
+   
     private void Awake()
     {
-        Instance = this;
         _gameInput.OnBlockPlaced += SetStartedTrue;    
     }
     private void Update()
@@ -56,7 +53,7 @@ public class GameManager : MonoBehaviour
         }
         var lastBlockLocalScaleX = _lastBlock.transform.localScale.x;
         var lastBlockLocalScaleZ = _lastBlock.transform.localScale.z;
-        OnNextBlockStart?.Invoke();
+        EventBus.StartNextBlock();
         _currentBlock = _blockSpawner.SpawnBlock(_lastBlock, lastBlockLocalScaleX, 
             lastBlockLocalScaleZ, _blockSpawner.CurrentAxis);    
     }

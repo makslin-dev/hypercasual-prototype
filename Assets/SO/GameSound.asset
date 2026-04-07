@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ce3baadc7044b948b38592a950bffcd, type: 3}
+  m_Name: GameSound
+  m_EditorClassIdentifier: 
+  CutSounds:
+  - {fileID: 8300000, guid: 9ffbfd1560f2994438671185f5259309, type: 3}
+  - {fileID: 8300000, guid: beb1ca9b39469ae4982eb6e7eaa9d2e2, type: 3}
+  - {fileID: 8300000, guid: b282d21996afd3046925cfff23d35d8c, type: 3}
+  - {fileID: 8300000, guid: e06a7a4cb2c488c43ad281c1afabfbbc, type: 3}
+  - {fileID: 8300000, guid: 8a2742fc5b76d0043899fc0af4f9807e, type: 3}
+  UiClickSound: {fileID: 8300000, guid: cefc91d74d6152a4f886b5944224a96a, type: 3}

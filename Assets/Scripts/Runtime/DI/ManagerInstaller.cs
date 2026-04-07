@@ -10,6 +10,7 @@ public class ManagerInstaller : MonoInstaller
         Container.BindInterfacesAndSelfTo<VibrationManager>().FromNew().AsSingle().NonLazy();
         Container.BindInterfacesAndSelfTo<ScoreManager>().FromNew().AsSingle().NonLazy();
         Container.Bind<GameManager>().FromComponentInHierarchy().AsSingle().NonLazy();
+        Container.Bind<AudioManager>().FromComponentInHierarchy().AsSingle().NonLazy();
         Container.Bind<PlayerPrefsManager>().FromNew().AsSingle().NonLazy();
         Container.BindInterfacesAndSelfTo<ViewManager>().FromNew().AsSingle().NonLazy();
     }
