@@ -9,26 +9,41 @@ public class GameManager : MonoBehaviour
     [SerializeField] private BlockController _startBlock;
     [SerializeField] private AnimationCurve _speedCurve;
     [Header("Speed Settings")]
-    [SerializeField] private float _startDuration = 1.5f;   
-    [SerializeField] private float _minDuration = 0.35f;   
-    [SerializeField] private float _durationStep = 0.5f;   
+    [SerializeField] private float _startDuration = 1.5f;
+    [SerializeField] private float _minDuration = 0.35f;
+    [SerializeField] private float _durationStep = 0.5f;
     [SerializeField] private float _moveDistance = 3f;
     private BlockController _currentBlock;
     private BlockController _lastBlock;
-    private bool _gameStarted;
+    private bool _isGameStarted;
+    private bool _isGameOver;
     private int _placedBlocks;
 
-    private void Awake()
+    private void OnEnable()
     {
-        _gameInput.OnBlockPlaced += SetStartedTrue;    
+        SubscribeToEvents();
+       
     }
     private void Update()
     {
-        if (_gameStarted)
+        if (_isGameStarted)
         {
             StartGame();
             EventBus.StartGame();
         }
+    }
+    private void OnDisable()
+    {
+        UnsubscribeFromEvents();
+    }
+    private void SubscribeToEvents()
+    {
+        _gameInput.OnBlockPlaced += SetStartedTrue;
+    }
+    private void UnsubscribeFromEvents()
+    {
+        _gameInput.OnBlockPlaced -= SetStartedTrue;
+        _gameInput.OnBlockPlaced -= SpawnNextBlock;
     }
     private void StartGame()
     {
@@ -37,11 +52,11 @@ public class GameManager : MonoBehaviour
         SpawnFirstBlock();
         _gameInput.OnBlockPlaced += SpawnNextBlock;
         _gameInput.OnBlockPlaced -= SetStartedTrue;
-        _gameStarted = false;
+        _isGameStarted = false;
     }
     private void SetStartedTrue()
     {
-        _gameStarted = true;
+        _isGameStarted = true;
     }
     private void SpawnFirstBlock()
     {
@@ -51,12 +66,21 @@ public class GameManager : MonoBehaviour
     }
     private void SpawnNextBlock()
     {
+        if (_isGameOver)
+        {
+            return;
+        }
         if (_currentBlock != null)
         {
             _currentBlock.StopMoving();
             print(_blockSpawner.CurrentAxis + "Current axis");
             bool success = _currentBlock.CutBlock(_lastBlock, _blockSpawner.CurrentAxis);
-
+            if (!success)
+            {
+                EventBus.GameOver();
+                _isGameOver = true;
+                return;
+            }
             _lastBlock = _currentBlock;
             _placedBlocks++;
         }

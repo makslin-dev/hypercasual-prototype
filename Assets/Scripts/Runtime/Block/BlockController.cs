@@ -1,6 +1,6 @@
 ﻿using DG.Tweening;
 using UnityEngine;
-using UnityEngine.Rendering;
+using UnityEngine.Apple;
 
 public class BlockController : MonoBehaviour
 {
@@ -52,7 +52,6 @@ public class BlockController : MonoBehaviour
         float tolerance = 0.3f;
         bool isX = moveAxis == MoveAxis.X;
 
-
         float myPos = isX ? transform.position.x : transform.position.z;
         float mySize = isX ? transform.localScale.x : transform.localScale.z;
 
@@ -79,7 +78,8 @@ public class BlockController : MonoBehaviour
         float overlapMax = Mathf.Min(prevMax, myMax);
         if (overlapMax <= overlapMin)
         {
-            Debug.LogWarning("you lost");
+            SpawnPieceHelper(myPos, mySize, isX);
+            Destroy(this.gameObject);
             return false;
         }
         float newSize = overlapMax - overlapMin;
