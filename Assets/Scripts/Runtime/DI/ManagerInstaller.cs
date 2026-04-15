@@ -7,11 +7,12 @@ public class ManagerInstaller : MonoInstaller
     public override void InstallBindings()
     {
         Container.Bind<Canvas[]>().FromInstance(_views).AsSingle();
+        Container.BindInterfacesAndSelfTo<ColorManager>().FromNew().AsSingle().NonLazy();
         Container.BindInterfacesAndSelfTo<VibrationManager>().FromNew().AsSingle().NonLazy();
         Container.BindInterfacesAndSelfTo<ScoreManager>().FromNew().AsSingle().NonLazy();
         Container.Bind<GameManager>().FromComponentInHierarchy().AsSingle().NonLazy();
         Container.Bind<AudioManager>().FromComponentInHierarchy().AsSingle().NonLazy();
         Container.Bind<PlayerPrefsManager>().FromNew().AsSingle().NonLazy();
-        Container.BindInterfacesAndSelfTo<ViewManager>().FromNew().AsSingle().NonLazy();
+        Container.BindInterfacesAndSelfTo<ViewManager>().FromNew().AsSingle().NonLazy();    
     }
 }

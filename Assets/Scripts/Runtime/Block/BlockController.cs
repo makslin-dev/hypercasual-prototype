@@ -1,10 +1,8 @@
 ﻿using DG.Tweening;
 using UnityEngine;
-using UnityEngine.Apple;
 
 public class BlockController : MonoBehaviour
 {
-    [SerializeField] private float _distance = 3f;
     [SerializeField] private float _duration = 1f;
     [SerializeField] private Renderer _renderer;
 

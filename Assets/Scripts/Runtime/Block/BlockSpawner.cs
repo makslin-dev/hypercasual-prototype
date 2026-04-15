@@ -1,4 +1,5 @@
 using UnityEngine;
+using Zenject;
 
 public class BlockSpawner : MonoBehaviour
 {
@@ -7,14 +8,19 @@ public class BlockSpawner : MonoBehaviour
     [SerializeField] private Transform _rightBlockSpawn;
     private float _currentY = 0.5f;
     private float _Yoffset = 1f;
-    private float _colorHue;
     public MoveAxis CurrentAxis { get; private set; } = MoveAxis.Z;
+    private ColorManager _colorManager;
+    [Inject]
+    private void Construct(ColorManager colorManager)
+    {
+        _colorManager = colorManager;
+    }
     private void Awake()
     {
         EventBus.OnNextBlockStart += ChangeAxis;
     }
-    public BlockController SpawnBlock(BlockController lastBlock, float scaleX, float scaleZ, MoveAxis axis,
-    float distance, float duration)
+
+    public BlockController SpawnBlock(BlockController lastBlock, float scaleX, float scaleZ, MoveAxis axis, float distance, float duration)
     {
         Vector3 newPos = lastBlock.transform.position;
         _currentY += _Yoffset;
@@ -38,9 +44,7 @@ public class BlockSpawner : MonoBehaviour
         var block = Instantiate(_block, newPos, Quaternion.identity);
         block.SetScale(scaleX, scaleZ);
 
-        _colorHue += 0.05f;
-        Color color = Color.HSVToRGB(_colorHue % 1f, 0.8f, 0.9f);
-        block.SetColor(color);
+        block.SetColor(_colorManager.GetNextColor());
 
         block.ConfigureMovement(duration);
 
@@ -55,9 +59,9 @@ public class BlockSpawner : MonoBehaviour
 
         return block;
     }
+
     private void ChangeAxis()
     {
-        print("changed");
         if (CurrentAxis == MoveAxis.X)
         {
             CurrentAxis = MoveAxis.Z;

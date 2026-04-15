@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using Zenject;
 
 [DefaultExecutionOrder(-1)]
 public class GameManager : MonoBehaviour
@@ -11,18 +12,22 @@ public class GameManager : MonoBehaviour
     [Header("Speed Settings")]
     [SerializeField] private float _startDuration = 1.5f;
     [SerializeField] private float _minDuration = 0.35f;
-    [SerializeField] private float _durationStep = 0.5f;
     [SerializeField] private float _moveDistance = 3f;
+    [Header("Starting Blocks")]
+    [SerializeField] private TowerBase _towerBase;
     private BlockController _currentBlock;
     private BlockController _lastBlock;
     private bool _isGameStarted;
     private bool _isGameOver;
     private int _placedBlocks;
-
+    [Inject]
+    private void Construct(TowerBase towerBase)
+    {
+        _towerBase = towerBase;
+    }
     private void OnEnable()
     {
-        SubscribeToEvents();
-       
+        SubscribeToEvents();    
     }
     private void Update()
     {

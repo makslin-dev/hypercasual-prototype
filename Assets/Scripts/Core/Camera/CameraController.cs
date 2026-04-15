@@ -9,10 +9,8 @@ public class CameraController : MonoBehaviour
     [SerializeField] private CinemachineCamera _cinemachineCam;
     [SerializeField] private Transform _cameraTarget;
     [SerializeField] private float _zoomDuration = 2f;
-    private Camera _mainCamera;
     private float _Yoffset = 1f;
     private float _minDistance = 10f;
-    private float _distanceMultiplier = 0.4f;
     private void OnEnable()
     {
         SubscribeToEvents();
