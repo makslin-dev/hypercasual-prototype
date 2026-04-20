@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using System;
 using UnityEngine;
 using Zenject;
@@ -14,28 +15,27 @@ public class GameManager : MonoBehaviour
     [SerializeField] private float _minDuration = 0.35f;
     [SerializeField] private float _moveDistance = 3f;
     [Header("Starting Blocks")]
-    [SerializeField] private TowerBase _towerBase;
+    [SerializeField] private TowerBase _towerBasePrefab;
     private BlockController _currentBlock;
     private BlockController _lastBlock;
+    private TowerBase _currentTowerBase;
     private bool _isGameStarted;
     private bool _isGameOver;
     private int _placedBlocks;
+    private ColorManager _colorManager;
+    private Vector3 _towerBaseDefaultPosition = new Vector3(0, -7f, 4);
     [Inject]
-    private void Construct(TowerBase towerBase)
+    private void Construct(ColorManager colorManager)
     {
-        _towerBase = towerBase;
+        _colorManager = colorManager;
     }
     private void OnEnable()
     {
         SubscribeToEvents();    
     }
-    private void Update()
+    private void Start()
     {
-        if (_isGameStarted)
-        {
-            StartGame();
-            EventBus.StartGame();
-        }
+        SpawnTowerBase();
     }
     private void OnDisable()
     {
@@ -55,13 +55,32 @@ public class GameManager : MonoBehaviour
         _placedBlocks = 0;
         _startBlock.StopMoving();
         SpawnFirstBlock();
+
         _gameInput.OnBlockPlaced += SpawnNextBlock;
-        _gameInput.OnBlockPlaced -= SetStartedTrue;
-        _isGameStarted = false;
+    }
+    private void SpawnTowerBase()
+    {
+        _currentTowerBase = Instantiate(_towerBasePrefab, _towerBaseDefaultPosition, Quaternion.identity);
+        _currentTowerBase.Init(_colorManager);
+        _startBlock = _currentTowerBase.GetTopBlock();
+        _currentTowerBase.MoveToBasePosition();
     }
     private void SetStartedTrue()
     {
-        _isGameStarted = true;
+        if (_isGameOver)
+        {
+            RestartGame().Forget();
+            return;
+        }
+
+        if (!_isGameStarted)
+        {
+            _isGameStarted = true;
+            StartGame();
+            EventBus.StartGame();
+
+            _gameInput.OnBlockPlaced -= SetStartedTrue;
+        }
     }
     private void SpawnFirstBlock()
     {
@@ -78,12 +97,12 @@ public class GameManager : MonoBehaviour
         if (_currentBlock != null)
         {
             _currentBlock.StopMoving();
-            print(_blockSpawner.CurrentAxis + "Current axis");
             bool success = _currentBlock.CutBlock(_lastBlock, _blockSpawner.CurrentAxis);
             if (!success)
             {
                 EventBus.GameOver();
                 _isGameOver = true;
+                _gameInput.OnBlockPlaced += SetStartedTrue;
                 return;
             }
             _lastBlock = _currentBlock;
@@ -99,5 +118,23 @@ public class GameManager : MonoBehaviour
     {
         float t = Mathf.Clamp01(_placedBlocks / 50f);
         return Mathf.Lerp(_startDuration, _minDuration, _speedCurve.Evaluate(t));
+    }
+    private async UniTask RestartGame()
+    {
+        _isGameOver = false;
+        _isGameStarted = false;
+        _placedBlocks = 0;
+
+        _currentTowerBase.ClearFromScene();
+        _blockSpawner.ClearBlocks();
+       
+        //_startBlock.ResetBlock(); 
+
+        _gameInput.OnBlockPlaced -= SpawnNextBlock;
+        _gameInput.OnBlockPlaced -= SetStartedTrue;
+        _gameInput.OnBlockPlaced += SetStartedTrue;
+        EventBus.RestartGame();
+        await UniTask.WaitForSeconds(2f);
+        SpawnTowerBase();
     }
 }

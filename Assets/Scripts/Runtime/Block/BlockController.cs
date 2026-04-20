@@ -4,6 +4,7 @@ using UnityEngine;
 public class BlockController : MonoBehaviour
 {
     [SerializeField] private float _duration = 1f;
+    [SerializeField] private Rigidbody _rb;
     [SerializeField] private Renderer _renderer;
 
     private Tween _moveTween;
@@ -143,5 +144,19 @@ public class BlockController : MonoBehaviour
             fallingPiece.GetComponent<Renderer>().material = myRenderer.material;
         }
         Destroy(fallingPiece, 3f);
+    }
+    public void ClearFromScene()
+    {
+        _rb.isKinematic = false;
+        Vector3 randomDirection = new Vector3(
+       Random.Range(-1f, 1f),
+       Random.Range(-0.5f, -1.2f), 
+       Random.Range(-1f, 1f)
+       ).normalized;
+
+        float force = 150f;
+
+        _rb.AddForce(randomDirection * force, ForceMode.Impulse);
+        Destroy(this.gameObject, 1.5f);
     }
 }

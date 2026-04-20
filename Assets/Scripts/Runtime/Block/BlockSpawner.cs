@@ -1,25 +1,45 @@
+using System.Collections.Generic;
 using UnityEngine;
 using Zenject;
 
 public class BlockSpawner : MonoBehaviour
 {
+    private const float DEFAULT_CURRENT_Y = 0.5f;
+
     [SerializeField] private BlockController _block;
     [SerializeField] private Transform _leftBlockSpawn;
     [SerializeField] private Transform _rightBlockSpawn;
-    private float _currentY = 0.5f;
+    private List<BlockController> _spawnedBlocks = new();
+    private float _currentY;
     private float _Yoffset = 1f;
     public MoveAxis CurrentAxis { get; private set; } = MoveAxis.Z;
     private ColorManager _colorManager;
+
     [Inject]
     private void Construct(ColorManager colorManager)
     {
         _colorManager = colorManager;
     }
-    private void Awake()
+    private void OnEnable()
     {
-        EventBus.OnNextBlockStart += ChangeAxis;
+        SubscribeToEvents();
+        _currentY = DEFAULT_CURRENT_Y;
     }
 
+    private void OnDisable()
+    {
+        UnsubscribeFromEvents();
+    }
+    private void SubscribeToEvents()
+    {
+        EventBus.OnNextBlockStart += ChangeAxis;
+        EventBus.OnGameRestarted += ResetCurrentY;
+    }
+    private void UnsubscribeFromEvents()
+    {
+        EventBus.OnNextBlockStart -= ChangeAxis;
+        EventBus.OnGameRestarted -= ResetCurrentY;
+    }
     public BlockController SpawnBlock(BlockController lastBlock, float scaleX, float scaleZ, MoveAxis axis, float distance, float duration)
     {
         Vector3 newPos = lastBlock.transform.position;
@@ -56,7 +76,7 @@ public class BlockSpawner : MonoBehaviour
         {
             block.MoveBlockZ(target);
         }
-
+        _spawnedBlocks.Add(block);
         return block;
     }
 
@@ -70,5 +90,17 @@ public class BlockSpawner : MonoBehaviour
         {
             CurrentAxis = MoveAxis.X;
         }
+    }
+    public void ClearBlocks()
+    {
+        for (int i = 0; i < _spawnedBlocks.Count - 1; ++i)
+        {
+            _spawnedBlocks[i].ClearFromScene();
+        }
+        _spawnedBlocks.Clear();
+    }
+    private void ResetCurrentY()
+    {
+        _currentY = DEFAULT_CURRENT_Y;
     }
 }

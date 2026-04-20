@@ -5,6 +5,8 @@ using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
+    private const float DEFAULT_ORTHOGRAPHIC_SIZE = 10f;
+    private readonly Vector3 DEFAULT_CAMERA_TARGET_POS = new Vector3(0,0,4);
     [SerializeField] private GameInputHandler _gameInputHandler;
     [SerializeField] private CinemachineCamera _cinemachineCam;
     [SerializeField] private Transform _cameraTarget;
@@ -23,21 +25,39 @@ public class CameraController : MonoBehaviour
     {
         _gameInputHandler.OnBlockPlaced += MoveUpByOffset;
         EventBus.OnGameOver += HandleGameOver;
+        EventBus.OnGameRestarted += HandleGameRestart;
     }
     private void UnsubscribeFromEvents()
     {
         _gameInputHandler.OnBlockPlaced -= MoveUpByOffset;
-        EventBus.OnGameOver += HandleGameOver;
+        EventBus.OnGameOver -= HandleGameOver;
+        EventBus.OnGameRestarted -= HandleGameRestart;
     }
     private void MoveUpByOffset()
     {
+        print("moving up");
         _cameraTarget.position = new Vector3(_cameraTarget.transform.position.x,
            _cameraTarget.transform.position.y + _Yoffset, _cameraTarget.transform.position.z);
+    }
+    private void MoveCameraTargetToDefault()
+    {
+        _cameraTarget.position = DEFAULT_CAMERA_TARGET_POS;
+        _cinemachineCam.Lens.OrthographicSize = DEFAULT_ORTHOGRAPHIC_SIZE;
     }
     private void HandleGameOver()
     {
         _gameInputHandler.OnBlockPlaced -= MoveUpByOffset;
         AnimateCameraZoomOut(this.GetCancellationTokenOnDestroy()).Forget();
+    }
+    private void HandleGameRestart()
+    {
+        AnimateRestoringToDefaultPosition().Forget();
+    }
+    private async UniTask AnimateRestoringToDefaultPosition()
+    {
+        await UniTask.WaitForSeconds(1f);
+        MoveCameraTargetToDefault();
+        _gameInputHandler.OnBlockPlaced += MoveUpByOffset;
     }
     private async UniTask AnimateCameraZoomOut(CancellationToken token)
     {
@@ -69,4 +89,5 @@ public class CameraController : MonoBehaviour
         _cameraTarget.position = targetPosition;
         _cinemachineCam.Lens.OrthographicSize = targetSize;
     }
+
 }

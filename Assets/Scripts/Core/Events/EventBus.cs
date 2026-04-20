@@ -12,6 +12,7 @@ public static class EventBus
     public static event Action OnNextBlockStart;
     public static event Action OnGameStarted;
     public static event Action OnGameOver;
+    public static event Action OnGameRestarted;
     public static void VibratePress()
     {
         OnVibratePressed?.Invoke();
@@ -43,5 +44,9 @@ public static class EventBus
     public static void GameOver()
     {
         OnGameOver?.Invoke();
+    }
+    public static void RestartGame()
+    {
+        OnGameRestarted?.Invoke();
     }
 }

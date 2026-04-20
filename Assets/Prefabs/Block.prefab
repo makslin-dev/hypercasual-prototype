@@ -122,8 +122,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9494d0e8ac201584091b555c92ab2282, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _distance: 10
   _duration: 1
+  _rb: {fileID: 2223813768126153859}
   _renderer: {fileID: 2884028671385101266}
 --- !u!54 &2223813768126153859
 Rigidbody:
@@ -147,8 +147,8 @@ Rigidbody:
     m_Bits: 0
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
-  m_UseGravity: 0
+  m_UseGravity: 1
   m_IsKinematic: 1
   m_Interpolate: 0
-  m_Constraints: 116
+  m_Constraints: 0
   m_CollisionDetection: 0
