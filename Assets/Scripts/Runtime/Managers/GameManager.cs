@@ -1,5 +1,6 @@
 using Cysharp.Threading.Tasks;
 using System;
+using System.Threading;
 using UnityEngine;
 using Zenject;
 
@@ -16,14 +17,16 @@ public class GameManager : MonoBehaviour
     [SerializeField] private float _moveDistance = 3f;
     [Header("Starting Blocks")]
     [SerializeField] private TowerBase _towerBasePrefab;
+
     private BlockController _currentBlock;
     private BlockController _lastBlock;
     private TowerBase _currentTowerBase;
     private bool _isGameStarted;
     private bool _isGameOver;
     private int _placedBlocks;
-    private ColorManager _colorManager;
     private Vector3 _towerBaseDefaultPosition = new Vector3(0, -7f, 4);
+
+    private ColorManager _colorManager;
     [Inject]
     private void Construct(ColorManager colorManager)
     {
@@ -55,7 +58,6 @@ public class GameManager : MonoBehaviour
         _placedBlocks = 0;
         _startBlock.StopMoving();
         SpawnFirstBlock();
-
         _gameInput.OnBlockPlaced += SpawnNextBlock;
     }
     private void SpawnTowerBase()
@@ -86,7 +88,7 @@ public class GameManager : MonoBehaviour
     {
         _lastBlock = _startBlock;
         _currentBlock = _blockSpawner.SpawnBlock(_lastBlock, _startBlock.transform.localScale.x,
-            _startBlock.transform.localScale.z, _blockSpawner.CurrentAxis, _moveDistance, GetCurrentDuration());
+        _startBlock.transform.localScale.z, _blockSpawner.CurrentAxis, _moveDistance, GetCurrentDuration());
     }
     private void SpawnNextBlock()
     {
@@ -102,6 +104,7 @@ public class GameManager : MonoBehaviour
             {
                 EventBus.GameOver();
                 _isGameOver = true;
+                _gameInput.OnBlockPlaced -= SpawnNextBlock;
                 _gameInput.OnBlockPlaced += SetStartedTrue;
                 return;
             }
@@ -127,14 +130,14 @@ public class GameManager : MonoBehaviour
 
         _currentTowerBase.ClearFromScene();
         _blockSpawner.ClearBlocks();
-       
-        //_startBlock.ResetBlock(); 
+        Destroy(_currentTowerBase.gameObject);
 
         _gameInput.OnBlockPlaced -= SpawnNextBlock;
         _gameInput.OnBlockPlaced -= SetStartedTrue;
-        _gameInput.OnBlockPlaced += SetStartedTrue;
+
         EventBus.RestartGame();
-        await UniTask.WaitForSeconds(2f);
+        await UniTask.WaitForSeconds(1f);
         SpawnTowerBase();
+        _gameInput.OnBlockPlaced += SetStartedTrue;
     }
 }

@@ -1009,6 +1009,7 @@ MonoBehaviour:
   _cinemachineCam: {fileID: 982271184}
   _cameraTarget: {fileID: 1783037669}
   _zoomDuration: 2
+  _cinemachinePosComposer: {fileID: 982271186}
 --- !u!114 &330585549
 MonoBehaviour:
   m_ObjectHideFlags: 0

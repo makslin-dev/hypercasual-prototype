@@ -11,6 +11,8 @@ public class CameraController : MonoBehaviour
     [SerializeField] private CinemachineCamera _cinemachineCam;
     [SerializeField] private Transform _cameraTarget;
     [SerializeField] private float _zoomDuration = 2f;
+    [SerializeField] private CinemachinePositionComposer _cinemachinePosComposer;
+    private CancellationTokenSource _zoomCts;
     private float _Yoffset = 1f;
     private float _minDistance = 10f;
     private void OnEnable()
@@ -35,29 +37,36 @@ public class CameraController : MonoBehaviour
     }
     private void MoveUpByOffset()
     {
-        print("moving up");
         _cameraTarget.position = new Vector3(_cameraTarget.transform.position.x,
            _cameraTarget.transform.position.y + _Yoffset, _cameraTarget.transform.position.z);
     }
-    private void MoveCameraTargetToDefault()
-    {
-        _cameraTarget.position = DEFAULT_CAMERA_TARGET_POS;
-        _cinemachineCam.Lens.OrthographicSize = DEFAULT_ORTHOGRAPHIC_SIZE;
-    }
     private void HandleGameOver()
     {
+        _zoomCts?.Cancel(); 
+        _zoomCts = new CancellationTokenSource();
         _gameInputHandler.OnBlockPlaced -= MoveUpByOffset;
-        AnimateCameraZoomOut(this.GetCancellationTokenOnDestroy()).Forget();
+        AnimateCameraZoomOut(_zoomCts.Token).Forget();
     }
     private void HandleGameRestart()
     {
+        _zoomCts?.Cancel();
         AnimateRestoringToDefaultPosition().Forget();
+    }
+    private void MoveCameraTargetToDefault()
+    {
+        _cinemachinePosComposer.Damping = new Vector3(0, 0, 0);
+        _cameraTarget.position = DEFAULT_CAMERA_TARGET_POS;
+        _cinemachineCam.Lens.OrthographicSize = DEFAULT_ORTHOGRAPHIC_SIZE;
     }
     private async UniTask AnimateRestoringToDefaultPosition()
     {
+        _cinemachinePosComposer.Damping = new Vector3(0, 0, 0);
         await UniTask.WaitForSeconds(1f);
         MoveCameraTargetToDefault();
         _gameInputHandler.OnBlockPlaced += MoveUpByOffset;
+
+        await UniTask.Yield(); 
+        _cinemachinePosComposer.Damping = new Vector3(1, 1, 1);
     }
     private async UniTask AnimateCameraZoomOut(CancellationToken token)
     {

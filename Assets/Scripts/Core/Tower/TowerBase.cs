@@ -32,7 +32,7 @@ public class TowerBase : MonoBehaviour
     {
         Vector3 targetPos = new Vector3(transform.position.x, 0.5f, transform.position.z);
 
-        transform.DOMove(targetPos, 0.2f)
+        transform.DOMove(targetPos, 0.05f)
             .SetEase(Ease.Linear);       
     }
 }
