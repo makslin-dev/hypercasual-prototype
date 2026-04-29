@@ -21,11 +21,11 @@ public class GameViewUI : MonoBehaviour
     }
     private void SubscribeToEvents()
     {
-        _scoreManager.OnScoreIncreased += AddScore;
+        EventBus.OnScoreChanged += AddScore;
     }
     private void UnsubscribeFromEvents()
     {
-        _scoreManager.OnScoreIncreased -= AddScore;
+        EventBus.OnScoreChanged -= AddScore;
     }
     public void AddScore(int score)
     {

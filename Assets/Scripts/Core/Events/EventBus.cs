@@ -13,6 +13,7 @@ public static class EventBus
     public static event Action OnGameStarted;
     public static event Action OnGameOver;
     public static event Action OnGameRestarted;
+    public static event Action<int> OnScoreChanged;
     public static void VibratePress()
     {
         OnVibratePressed?.Invoke();
@@ -48,5 +49,9 @@ public static class EventBus
     public static void RestartGame()
     {
         OnGameRestarted?.Invoke();
+    }
+    public static void ChangeScore(int score)
+    {
+        OnScoreChanged?.Invoke(score);
     }
 }
