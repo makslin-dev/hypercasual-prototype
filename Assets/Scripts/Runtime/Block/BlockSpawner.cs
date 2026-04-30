@@ -42,7 +42,7 @@ public class BlockSpawner : MonoBehaviour
     }
     public BlockController SpawnBlock(BlockController lastBlock, float scaleX, float scaleZ, MoveAxis axis, float distance, float duration)
     {
-        Vector3 newPos = lastBlock.transform.position;
+        Vector3 newPos = lastBlock.TargetPos;
         _currentY += _Yoffset;
         newPos.y = _currentY;
 
@@ -50,15 +50,15 @@ public class BlockSpawner : MonoBehaviour
 
         if (axis == MoveAxis.X)
         {
-            newPos.x = lastBlock.transform.position.x - distance;
-            newPos.z = lastBlock.transform.position.z;
-            target = lastBlock.transform.position.x + distance;
+            newPos.x = lastBlock.TargetPos.x - distance;
+            newPos.z = lastBlock.TargetPos.z;
+            target = lastBlock.TargetPos.x + distance;
         }
         else
         {
-            newPos.z = lastBlock.transform.position.z - distance;
-            newPos.x = lastBlock.transform.position.x;
-            target = lastBlock.transform.position.z + distance;
+            newPos.z = lastBlock.TargetPos.z - distance;
+            newPos.x = lastBlock.TargetPos.x;
+            target = lastBlock.TargetPos.z + distance;
         }
 
         var block = Instantiate(_block, newPos, Quaternion.identity);

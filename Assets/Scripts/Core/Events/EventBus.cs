@@ -14,6 +14,8 @@ public static class EventBus
     public static event Action OnGameOver;
     public static event Action OnGameRestarted;
     public static event Action<int> OnScoreChanged;
+    public static event Action OnPlayerMiss;
+    public static event Action OnPerfectScore;
     public static void VibratePress()
     {
         OnVibratePressed?.Invoke();
@@ -53,5 +55,13 @@ public static class EventBus
     public static void ChangeScore(int score)
     {
         OnScoreChanged?.Invoke(score);
+    }
+    public static void ScorePerfect()
+    {
+        OnPerfectScore?.Invoke();
+    }
+    public static void PlayerMiss()
+    {
+        OnPlayerMiss?.Invoke();
     }
 }

@@ -24,6 +24,8 @@ public class GameManager : MonoBehaviour
     private bool _isGameStarted;
     private bool _isGameOver;
     private int _placedBlocks;
+    private int _perfectCount;
+    private float _maxBlockSize = 5f;
     private Vector3 _towerBaseDefaultPosition = new Vector3(0, -7f, 4);
 
     private ColorManager _colorManager;
@@ -40,6 +42,10 @@ public class GameManager : MonoBehaviour
     {
         SpawnTowerBase();
     }
+    private void Update()
+    {
+        print(_perfectCount);
+    }
     private void OnDisable()
     {
         UnsubscribeFromEvents();
@@ -47,12 +53,17 @@ public class GameManager : MonoBehaviour
     private void SubscribeToEvents()
     {
         _gameInput.OnBlockPlaced += SetStartedTrue;
+        EventBus.OnPerfectScore += IncreasePerfectScore;
+        EventBus.OnPlayerMiss += ResetPerfectScore;
     }
     private void UnsubscribeFromEvents()
     {
         _gameInput.OnBlockPlaced -= SetStartedTrue;
         _gameInput.OnBlockPlaced -= SpawnNextBlock;
+        EventBus.OnPerfectScore -= IncreasePerfectScore;
+        EventBus.OnPlayerMiss -= ResetPerfectScore;
     }
+
     private void StartGame()
     {
         _placedBlocks = 0;
@@ -111,8 +122,8 @@ public class GameManager : MonoBehaviour
             _lastBlock = _currentBlock;
             _placedBlocks++;
         }
-        var lastBlockLocalScaleX = _lastBlock.transform.localScale.x;
-        var lastBlockLocalScaleZ = _lastBlock.transform.localScale.z;
+        var lastBlockLocalScaleX = _lastBlock.TargetScale.x;
+        var lastBlockLocalScaleZ = _lastBlock.TargetScale.z;
         EventBus.StartNextBlock();
         _currentBlock = _blockSpawner.SpawnBlock(_lastBlock, lastBlockLocalScaleX,
             lastBlockLocalScaleZ, _blockSpawner.CurrentAxis, _moveDistance, GetCurrentDuration());
@@ -121,6 +132,25 @@ public class GameManager : MonoBehaviour
     {
         float t = Mathf.Clamp01(_placedBlocks / 50f);
         return Mathf.Lerp(_startDuration, _minDuration, _speedCurve.Evaluate(t));
+    }
+    private void IncreasePerfectScore()
+    {
+        _perfectCount += 1;
+        if (_perfectCount > 7)
+        {
+            if (_currentBlock != null)
+            {
+                bool isX = _blockSpawner.CurrentAxis == MoveAxis.X;
+
+                float towerCenter = isX ? _startBlock.transform.position.x : _startBlock.transform.position.z;
+
+                _currentBlock.IncreaseBlock( _maxBlockSize, _startBlock.transform.position);
+            }
+        }
+    }
+    private void ResetPerfectScore()
+    {
+        _perfectCount = 0;
     }
     private async UniTask RestartGame()
     {

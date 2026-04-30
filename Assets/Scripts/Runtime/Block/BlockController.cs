@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class BlockController : MonoBehaviour
 {
+    public Vector3 TargetScale { get; private set; }
+    public Vector3 TargetPos { get; private set; }  
     [SerializeField] private float _duration = 1f;
     [SerializeField] private Rigidbody _rb;
     [SerializeField] private Renderer _renderer;
@@ -45,10 +47,58 @@ public class BlockController : MonoBehaviour
         newScale.x = scaleX;
         newScale.z = scaleZ;
         transform.localScale = newScale;
+        TargetScale = newScale;
+    }
+    public void IncreaseBlock(float maxSize, Vector3 towerCenter)
+    {
+        Vector3 targetScale = transform.localScale;
+        Vector3 targetPos = transform.position;
+
+        bool isMaxX = targetScale.x >= maxSize;
+        bool isMaxZ = targetScale.z >= maxSize;
+
+        if (isMaxX && isMaxZ)
+        {
+            print("ITS TOO BIG BRO");
+            return;
+        }
+
+        float growthAmount = maxSize * 0.1f;
+
+        if (!isMaxX)
+        {
+            float actualGrowthX = Mathf.Min(growthAmount, maxSize - targetScale.x);
+            float offsetX = targetPos.x - towerCenter.x;
+
+            if (Mathf.Abs(offsetX) > 0.01f)
+            {
+                int directionX = targetPos.x < towerCenter.x ? 1 : -1;
+                targetPos.x += (actualGrowthX / 2f) * directionX;
+            }
+            targetScale.x += actualGrowthX;
+        }
+        if (!isMaxZ)
+        {
+            float actualGrowthZ = Mathf.Min(growthAmount, maxSize - targetScale.z);
+            float offsetZ = targetPos.z - towerCenter.z;
+
+            if (Mathf.Abs(offsetZ) > 0.01f)
+            {
+                int directionZ = targetPos.z < towerCenter.z ? 1 : -1;
+                targetPos.z += (actualGrowthZ / 2f) * directionZ;
+            }
+            targetScale.z += actualGrowthZ;
+        }
+
+        print("increasing!");
+        TargetScale = targetScale;
+        TargetPos = targetPos;
+        transform.DOScale(targetScale, 0.2f).SetEase(Ease.OutQuad);
+        transform.DOMove(targetPos, 0.2f).SetEase(Ease.OutQuad);
     }
     public bool CutBlock(BlockController previousBlock, MoveAxis moveAxis)
     {
-        float tolerance = 0.3f;
+        float tolerance = 1f; //0.3f
         bool isX = moveAxis == MoveAxis.X;
 
         float myPos = isX ? transform.position.x : transform.position.z;
@@ -65,7 +115,9 @@ public class BlockController : MonoBehaviour
             else perfectPos.z = prevPos;
 
             transform.position = perfectPos;
-            print("perfect");
+            TargetScale = transform.localScale;
+            TargetPos = perfectPos;
+            EventBus.ScorePerfect();
             return true;
         }
         float prevMin = prevPos - prevSize / 2f;
@@ -112,6 +164,9 @@ public class BlockController : MonoBehaviour
         transform.localScale = newScaleVec;
         transform.position = newPosVec;
 
+        TargetScale = newScaleVec;
+        TargetPos = newPosVec;
+        EventBus.PlayerMiss();
         return true;
     }
     private void SpawnPieceHelper(float center, float size, bool isX)
