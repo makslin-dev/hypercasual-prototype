@@ -59,7 +59,6 @@ public class BlockController : MonoBehaviour
 
         if (isMaxX && isMaxZ)
         {
-            print("ITS TOO BIG BRO");
             return;
         }
 
